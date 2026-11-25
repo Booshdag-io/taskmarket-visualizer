@@ -1,0 +1,23 @@
+Live URL: https://booshdag-io.github.io/taskmarket-visualizer/
+Repository URL: https://github.com/Booshdag-io/taskmarket-visualizer
+
+Stack:
+- Zero-dependency Node.js (>=22) build and deploy scripts (scripts/fetch-data.mjs, scripts/deploy-gh-pages.mjs) writing public/data/snapshot.json
+- Vanilla HTML, CSS, and ES module JavaScript static frontend (public/index.html, public/styles.css, public/app.js) with inline SVG charts and local Brand Kit typography (Instrument Serif, Inter Tight, Departure Mono)
+- Static hosting on GitHub Pages (gh-pages branch; optional GitHub Actions workflow template in infra/github-actions-deploy.yml)
+
+Taskmarket API Endpoints Used (base: https://api.taskmarket.dev):
+1. GET /api/market/stats?chainId={4217,8453}
+2. GET /api/stats/breakdowns?chainId={4217,8453}
+3. GET /api/stats/platform-time-series?chainId={4217,8453}&range={7d,30d,90d,all}&bucket={day,week}
+4. GET /api/stats/activity-heatmap?chainId={4217,8453}&range={30d,all}&dimension={hourOfWeek,mode}
+5. GET /api/stats/activity-feed?chainId={4217,8453}&limit=30
+6. GET /api/tasks?chainId={4217,8453}&sort=newest&limit=100&cursor=... (paginated full task scan per chain for unique posters, top-poster concentration, expiry/cancellation outcomes, and swarm submission convergence)
+
+Data Refresh & Caching:
+- Automated hourly refresh runs node scripts/deploy-gh-pages.mjs (or infra/github-actions-deploy.yml on cron "17 * * * *" when workflow permissions are enabled), updating public/data/snapshot.json with a UTC fetchedAt timestamp and pushing public/ to GitHub Pages.
+- All frontend reads serve the precomputed public/data/snapshot.json (browser cache bypassed with cache: "no-store"), guaranteeing instant initial load and zero runtime rate-limit exposure for visitors.
+
+One-Command Deploy:
+- npm run deploy (refreshes snapshot.json and publishes public/ to the gh-pages branch)
+- Local preview: npm run fetch && npm run serve (serves at http://localhost:4173)

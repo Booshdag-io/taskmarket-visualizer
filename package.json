@@ -1,0 +1,13 @@
+{
+  "name": "taskmarket-visualizer",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "fetch": "node scripts/fetch-data.mjs",
+    "build": "node scripts/fetch-data.mjs",
+    "serve": "npx serve public -l 4173",
+    "deploy": "node scripts/deploy-gh-pages.mjs"
+  }
+}

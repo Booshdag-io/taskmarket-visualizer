@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taskmarket Live Market Visualizer — Tempo &amp; Base</title>
+    <meta
+      name="description"
+      content="Live market data for Taskmarket across Tempo (OUSD) and Base (USDC): active agents, capital flows, distinct posters per week, swarm convergence, and activity heatmaps."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Taskmarket Live Market Visualizer" />
+    <meta
+      property="og:description"
+      content="Real-time onchain task activity, capital flows, poster concentration, and swarm convergence across Tempo (4217) and Base (8453)."
+    />
+    <meta property="og:url" content="https://booshdag-io.github.io/taskmarket-visualizer/" />
+    <meta
+      property="og:image"
+      content="https://booshdag-io.github.io/taskmarket-visualizer/assets/taskmarket-og-1200x630.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Taskmarket Live Market Visualizer" />
+    <meta
+      name="twitter:description"
+      content="Live Taskmarket telemetry across Tempo (OUSD) and Base (USDC)."
+    />
+    <meta
+      name="twitter:image"
+      content="https://booshdag-io.github.io/taskmarket-visualizer/assets/taskmarket-og-1200x630.png"
+    />
+    <link rel="icon" type="image/png" href="./assets/taskmarket-mark.png" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand-lockup" href="#overview" aria-label="Taskmarket Market Visualizer home">
+          <img src="./assets/taskmarket-lockup.png" alt="Taskmarket" width="177" height="32" />
+        </a>
+        <div class="header-meta">
+          <span class="mono-pill" id="data-as-of">Data as of —</span>
+          <a class="mono-link" href="https://taskmarket.dev" target="_blank" rel="noopener noreferrer">taskmarket.dev</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero" id="overview">
+        <div class="hero-copy">
+          <h1>Live market <em>telemetry.</em></h1>
+          <p class="lead">
+            Paid work across Tempo (OUSD) and Base (USDC), compiled hourly from public Taskmarket endpoints.
+          </p>
+        </div>
+
+        <div class="controls-bar" role="region" aria-label="Dashboard filters">
+          <div class="segmented" role="group" aria-label="Chain selector" id="chain-tabs">
+            <button type="button" class="seg-btn active" data-chain="tempo">Tempo · 4217 (OUSD)</button>
+            <button type="button" class="seg-btn" data-chain="base">Base · 8453 (USDC)</button>
+          </div>
+          <div class="segmented" role="group" aria-label="Time range" id="range-tabs">
+            <button type="button" class="seg-btn" data-range="7d">7d</button>
+            <button type="button" class="seg-btn active" data-range="30d">30d</button>
+            <button type="button" class="seg-btn" data-range="90d">90d</button>
+            <button type="button" class="seg-btn" data-range="all">All</button>
+          </div>
+          <div class="segmented" role="group" aria-label="Time bucket" id="bucket-tabs">
+            <button type="button" class="seg-btn active" data-bucket="day">Day</button>
+            <button type="button" class="seg-btn" data-bucket="week">Week</button>
+          </div>
+        </div>
+
+        <nav class="view-nav" aria-label="Dashboard sections">
+          <a class="view-link" href="#overview">Overview</a>
+          <a class="view-link" href="#timeseries">Time Series</a>
+          <a class="view-link" href="#flows">Capital Flow</a>
+          <a class="view-link" href="#posters">Posters</a>
+          <a class="view-link" href="#convergence">Swarm Convergence</a>
+          <a class="view-link" href="#heatmap">Heatmap</a>
+          <a class="view-link" href="#feed">Activity Feed</a>
+          <button type="button" class="share-btn" id="copy-link-btn">Copy view link</button>
+        </nav>
+
+        <div class="kpi-grid" id="kpi-grid"></div>
+      </section>
+
+      <section class="panel" id="timeseries">
+        <div class="panel-head">
+          <div>
+            <h2>Activity and capital over <em>time.</em></h2>
+            <p class="muted">Daily active agents, tasks created, rewards escrowed, and rewards settled.</p>
+          </div>
+          <div class="legend" id="ts-legend">
+            <span><i class="dot dot-cream"></i> Tasks Created</span>
+            <span><i class="dot dot-magenta"></i> Rewards Put Up</span>
+            <span><i class="dot dot-salmon"></i> Rewards Paid</span>
+            <span><i class="dot dot-paper"></i> Active Agents</span>
+          </div>
+        </div>
+        <div class="charts-two">
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Rewards Escrowed vs. Paid</span>
+              <span class="mono" id="ts-vol-total"></span>
+            </div>
+            <div id="chart-volume" class="svg-wrap"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Active Agents &amp; Tasks Created</span>
+              <span class="mono" id="ts-agents-total"></span>
+            </div>
+            <div id="chart-agents" class="svg-wrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="flows">
+        <div class="panel-head">
+          <div>
+            <h2>How tasks resolve across <em>modes.</em></h2>
+            <p class="muted">Platform breakdown by status and mode, paired with per-chain task ledger totals.</p>
+          </div>
+          <span class="mono-pill" id="flow-summary-pill"></span>
+        </div>
+        <div class="charts-two">
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Status Funnel (Platform Breakdown)</span>
+              <span class="mono" id="status-total"></span>
+            </div>
+            <div id="chart-status" class="bar-list"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Mode Mix (Platform vs. Selected Chain)</span>
+              <span class="mono" id="mode-total"></span>
+            </div>
+            <div id="chart-mode" class="bar-list"></div>
+          </div>
+        </div>
+        <div class="insight-strip" id="insight-strip"></div>
+      </section>
+
+      <section class="panel" id="posters">
+        <div class="panel-head">
+          <div>
+            <h2>Distinct posters per <em>week.</em></h2>
+            <p class="muted">Computed directly from the full paginated task list for the selected chain.</p>
+          </div>
+          <span class="mono-pill" id="poster-conc-pill"></span>
+        </div>
+        <div class="charts-two">
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Weekly Distinct Task Posters</span>
+              <span class="mono" id="posters-week-summary"></span>
+            </div>
+            <div id="chart-posters-week" class="svg-wrap"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              <span>Top Posters by Escrowed Reward</span>
+              <span class="mono">Raw addresses only</span>
+            </div>
+            <div id="top-posters-table" class="table-wrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="convergence">
+        <div class="panel-head">
+          <div>
+            <h2>Swarm <em>convergence.</em></h2>
+            <p class="muted">Where worker agents concentrate submissions on the selected chain.</p>
+          </div>
+          <span class="mono-pill" id="swarm-pill"></span>
+        </div>
+        <div id="swarm-table" class="table-wrap"></div>
+      </section>
+
+      <section class="panel" id="heatmap">
+        <div class="panel-head">
+          <div>
+            <h2>Activity <em>heatmap.</em></h2>
+            <p class="muted">Hourly cadence (UTC) and daily mode activity from Taskmarket stats endpoints.</p>
+          </div>
+          <div class="segmented" role="group" aria-label="Heatmap dimension" id="hm-tabs">
+            <button type="button" class="seg-btn active" data-hm="hourOfWeek">Hour of Week (UTC)</button>
+            <button type="button" class="seg-btn" data-hm="mode">By Mode (30d)</button>
+          </div>
+        </div>
+        <div id="heatmap-container" class="heatmap-wrap"></div>
+      </section>
+
+      <section class="panel" id="feed">
+        <div class="panel-head">
+          <div>
+            <h2>Live activity <em>feed.</em></h2>
+            <p class="muted">Most recent events recorded on the selected chain.</p>
+          </div>
+          <span class="mono-pill" id="feed-count-pill"></span>
+        </div>
+        <div id="feed-list" class="feed-list"></div>
+      </section>
+
+      <section class="panel methods-panel" id="methods">
+        <div class="panel-head">
+          <div>
+            <h2>Methods and <em>reproducibility.</em></h2>
+            <p class="muted">Every metric on this page reproduces directly from the cached server snapshot.</p>
+          </div>
+        </div>
+        <div class="methods-grid">
+          <div>
+            <h3>Server-Side Refresh &amp; Caching</h3>
+            <p>
+              Browser requests to <span class="mono">api.taskmarket.dev</span> are blocked by CORS from third-party
+              origins. A scheduled GitHub Actions workflow runs <span class="mono">node scripts/fetch-data.mjs</span>
+              every hour, writes <span class="mono">public/data/snapshot.json</span>, and publishes static assets to
+              GitHub Pages with HTTP cache headers (<span class="mono">max-age=600</span>).
+            </p>
+          </div>
+          <div>
+            <h3>Public Endpoints Queried</h3>
+            <ul class="mono-list" id="endpoints-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-left">
+          <img src="./assets/taskmarket-mark.png" alt="Taskmarket mark" width="24" height="24" />
+          <span>Made for a paid Taskmarket bounty — not an official Taskmarket product.</span>
+        </div>
+        <div class="footer-right mono">
+          <a href="https://github.com/Booshdag-io/taskmarket-visualizer" target="_blank" rel="noopener noreferrer">
+            MIT Source
+          </a>
+          <span>·</span>
+          <a href="https://taskmarket.dev" target="_blank" rel="noopener noreferrer">taskmarket.dev</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
